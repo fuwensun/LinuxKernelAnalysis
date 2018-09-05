@@ -2,7 +2,7 @@
 ```c
 struct task_struct {
 #ifdef CONFIG_THREAD_INFO_IN_TASK
-	/* 线程的状态、标志等需要快速访问的 */
+	/* 线程的状态、标志等需要在汇编代码快速访问的 */
 	struct thread_info		thread_info;
 #endif
 	/* -1 unrunnable, 0 runnable, >0 stopped: */
