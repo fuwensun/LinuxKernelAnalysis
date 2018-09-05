@@ -1,7 +1,8 @@
-1.1.1进程描述符
+1.1进程描述符
 ```c
 struct task_struct {
 #ifdef CONFIG_THREAD_INFO_IN_TASK
+	/* 线程的状态、标志等需要快速访问的 */
 	struct thread_info		thread_info;
 #endif
 	/* -1 unrunnable, 0 runnable, >0 stopped: */
@@ -40,6 +41,10 @@ struct task_struct {
 	struct list_head		thread_node;
   
   	/* CPU-specific state of this task: */
+	/* 和CPU相关的线程状态，这个字段和 thread_info 作用相近。
+	*在有些ARCH中为空的struct，内容都迁入 thread_info。
+	*另外一些ARCH中 thread_info 大小有限制，就依赖 thread （如x86）。
+	*/
 	struct thread_struct		thread;	
   }
   ```
