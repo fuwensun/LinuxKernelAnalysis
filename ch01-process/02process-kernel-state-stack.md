@@ -9,7 +9,7 @@ void syscall_init(void)
 	wrmsrl(MSR_LSTAR, (unsigned long)entry_SYSCALL_64);
 ```
 
-linux\arch\arm64\kernel\entry.S
+linux\arch\x86\entry\entry_64.S
 ```
 ENTRY(entry_SYSCALL_64)
 	movq	%rsp, PER_CPU_VAR(rsp_scratch)
