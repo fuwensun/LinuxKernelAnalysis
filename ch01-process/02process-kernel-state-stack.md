@@ -3,10 +3,12 @@
 
 ```
 内核初始到系统调用初始化：
-	start_kernel()
-		trap_init()
-			cpu_init()
-				syscall_init()
+```
+start_kernel()
+	trap_init()
+		cpu_init()
+			syscall_init()
+```
 
 
 加载 entry_SYSCALL_64 到 MSR_LSTAR 中。之后用户空间发起系统调用，将触发 entry_SYSCALL_64 函数。
