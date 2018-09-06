@@ -1,8 +1,8 @@
 # 1.2模块静态编译
 
 总的流程是：  
--    编译阶段，链接文件定义 __initcall 区，module_init 将模块的 xxx_module_init，放入 __initcall 区。  
--    运行阶段，start_kernel函数会逐个调用 __initcall 区里的 xxx_module_init。  
+-    编译阶段，链接文件定义 .initcall6.init 段，module_init 标记 xxx_module_init 属性为.initcall6.init，链接时放入 .initcall6.init 段。  
+-    运行阶段，start_kernel函数会逐个调用 .initcall6.init 段里的 xxx_module_init。  
 
 
 
@@ -24,7 +24,7 @@
 ```
 所以INIT_CALLS_LEVEL(x)等于：
 ```
-		__initcall_x_start) = .;
+		__initcall_x_start = .;
 		KEEP(*(.initcallx.init))	
 		KEEP(*(.initcallxs.init))
 ```
@@ -67,6 +67,7 @@
 		__initcall_end = .;
 	}
 ```
+这定义了.init.data段，链接时带 .initcall6.init 或 .initcall6s.init 属性的内容都放在这里。
 
 ```
 /* linux\include\linux\module.h */
