@@ -31,33 +31,14 @@ linux\include\asm-generic\vmlinux.lds.h
 #define INIT_CALLS							\
 		VMLINUX_SYMBOL(__initcall_start) = .;			\
 		KEEP(*(.initcallearly.init))				\
-		INIT_CALLS_LEVEL(0)					\
-		INIT_CALLS_LEVEL(1)					\
-		INIT_CALLS_LEVEL(2)					\
-		INIT_CALLS_LEVEL(3)					\
-		INIT_CALLS_LEVEL(4)					\
-		INIT_CALLS_LEVEL(5)					\
-		INIT_CALLS_LEVEL(rootfs)				\
 		INIT_CALLS_LEVEL(6)					\
-		INIT_CALLS_LEVEL(7)					\
 		VMLINUX_SYMBOL(__initcall_end) = .;
 ```
 所以 INIT_CALLS 等于：
-```
-		__initcall_start) = .;			
-		KEEP(*(.initcallearly.init))					
-		__initcall_0_start) = .;
-		KEEP(*(.initcall.init))	
-		KEEP(*(.initcalls.init))
-		__initcall_1_start) = .;
-		KEEP(*(.initcall.init))	
-		KEEP(*(.initcalls.init))
-				.
-				.
-				.
-		__initcall_7_start) = .;
-		KEEP(*(.initcall.init))	
-		KEEP(*(.initcalls.init))				
+```					
+		__initcall_6_start) = .;
+		KEEP(*(.initcall6.init))	
+		KEEP(*(.initcalls6.init))				
 		__initcall_end = .;
 ```
 
@@ -65,12 +46,7 @@ linux\include\asm-generic\vmlinux.lds.h
 ```		
 #define INIT_DATA_SECTION(initsetup_align)				\		
 	.init.data : AT(ADDR(.init.data) - LOAD_OFFSET) {		\
-		INIT_DATA						\
-		INIT_SETUP(initsetup_align)				\
 		INIT_CALLS						\			
-		CON_INITCALL						\
-		SECURITY_INITCALL					\
-		INIT_RAM_FS						\
 	}
 
 ```
