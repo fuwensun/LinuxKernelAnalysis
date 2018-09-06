@@ -1,5 +1,8 @@
 # 目录
-* [第 1 章 模块](ch-/readme.md)
+* [第 1 章 模块](ch01-/readme.md)
+    * [1.1 模块](ch01-module/01module.md)
+    * [1.2 静态编译模块](ch01-module/02compile-statically.md)
+    * [1.3 动态编译模块](ch01-module/03compile-dynamically.md)
 * [第 2 章 进程](ch02-process/readme.md)
     * [2.1 进程结构体](ch02-process/01task-structure.md)
     * [3.2 进程内核栈](ch02-process/02process-kernel-state-stack.md)
