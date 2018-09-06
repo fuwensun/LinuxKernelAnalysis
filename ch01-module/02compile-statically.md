@@ -1,8 +1,8 @@
 # 1.2模块静态编译
 
-总的流程是：
-	编译阶段，链接文件定义 __initcall 区，module_init 将模块的 xxx_module_init，放入 __initcall 区。
-	运行阶段，start_kernel函数会逐个调用 __initcall 区里的 xxx_module_init。
+总的流程是：  
+    编译阶段，链接文件定义 __initcall 区，module_init 将模块的 xxx_module_init，放入 __initcall 区。  
+    运行阶段，start_kernel函数会逐个调用 __initcall 区里的 xxx_module_init。  
 
 
 ```
@@ -31,22 +31,3 @@ start_kernel
                         	do_initcall_level(level)
                             	do_one_initcall(initcall_t fn)	<--module静态编译时，xxx_mod_init函数被调用！！！！
 ```
-
-
-
-## 1.1.2模块动态编译
-
-总的流程是：
-	编译阶段，编译生成.ko文件。
-	运行阶段，通过 insmod 系统调用，在内核空间调用xxx_mod_init()函数。
-
-```
-//sfw**module**module_init定义(模块动态编译)
-#define module_init(initfn)					\
-//sfw**__inittest函数测试initfn的类型为initcall_t
-	static inline initcall_t __maybe_unused __inittest(void)		\
-	{ return initfn; }					\
-//sfw**initfn函数被重命名为init_module
-	int init_module(void) __attribute__((alias(#initfn)));	
-```
-

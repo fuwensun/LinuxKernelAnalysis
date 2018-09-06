@@ -1,6 +1,6 @@
 # 目录
 * [第 1 章 模块](ch01-/readme.md)
-    * [1.1 模块](ch01-module/01module.md)
+    * [1.1 HelloWorld 模块](ch01-module/01helloworld-module.md)
     * [1.2 静态编译模块](ch01-module/02compile-statically.md)
     * [1.3 动态编译模块](ch01-module/03compile-dynamically.md)
 * [第 2 章 进程](ch02-process/readme.md)
