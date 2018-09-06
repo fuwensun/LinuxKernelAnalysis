@@ -54,14 +54,19 @@
 	}
 
 ```
-
-
-
 ```
 /* linux\arch\x86\kernel\vmlinux.lds.S */
 	INIT_DATA_SECTION(16)
 ```
-
+所以 INIT_DATA_SECTION(16) 等于：
+```
+	.init.data : {		
+		__initcall_6_start) = .;
+		KEEP(*(.initcall6.init))	
+		KEEP(*(.initcall6s.init))				
+		__initcall_end = .;
+	}
+```
 
 ```
 /* linux\include\linux\module.h */
