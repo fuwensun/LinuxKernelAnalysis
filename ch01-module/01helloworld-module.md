@@ -22,5 +22,5 @@ module_exit(hw_exit);
 ```
 
 内核模块有两种用法，通过MODULE宏来控制：  
-1、静态编译：不定义MODULE宏，helloworld.c 和内核一起编译。  
-2、静态编译：定义MODULE宏，helloworld.c 独立编译。通过 insmod 指令插入内核。  
+-    1、静态编译：不定义MODULE宏，helloworld.c 和内核一起编译。  
+-    2、动态编译：定义MODULE宏，helloworld.c 独立编译。通过 insmod 指令插入内核。  
