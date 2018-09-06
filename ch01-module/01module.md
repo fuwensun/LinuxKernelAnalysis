@@ -1,13 +1,14 @@
-# 1.1Ä£¿é
+# 1.1æ¨¡å—
 ## 1.1.1 HELLO WORLD
 
-HELLO WORLD£¡£¡£¡
-Î°´óµÄHELLO WORLD£¡£¡£¡
-Ã¿´Î´òÓ¡HELLO WORLD¶¼ËµÃ÷ÎÒÓÖÔÚÑ§ÐÂµÄ±à³ÌÓïÑÔÁË£¡£¡£¡
+HELLO WORLDï¼ï¼ï¼  
+ä¼Ÿå¤§çš„HELLO WORLDï¼ï¼ï¼  
+æ¯æ¬¡æ‰“å°HELLO WORLDéƒ½è¯´æ˜Žæˆ‘åˆåœ¨å­¦æ–°çš„ç¼–ç¨‹è¯­è¨€äº†ï¼ï¼ï¼  
 helloworld.c
 ```
 #incldue <linux/kernel.h>
 #incldue <linux/module.h>
+
 static int hw_init(void){
 	printk("hello world !");
 	return 0;
@@ -19,16 +20,18 @@ static void hw_exit(void){
 module_init(hw_init);
 module_exit(hw_exit);
 ```
-ÄÚºËÄ£¿éÓÐÁ½ÖÖÓÃ·¨£¬Í¨¹ýMODULEºêÀ´¿ØÖÆ£º
-1¡¢¾²Ì¬±àÒë£º²»¶¨ÒåMODULEºê£¬helloworld.c ºÍÄÚºËÒ»Æð±àÒë¡£
-2¡¢¾²Ì¬±àÒë£º¶¨ÒåMODULEºê£¬helloworld.c ¶ÀÁ¢±àÒë¡£Í¨¹ý insmod Ö¸Áî²åÈëÄÚºË¡£
+
+å†…æ ¸æ¨¡å—æœ‰ä¸¤ç§ç”¨æ³•ï¼Œé€šè¿‡MODULEå®æ¥æŽ§åˆ¶ï¼š
+1ã€é™æ€ç¼–è¯‘ï¼šä¸å®šä¹‰MODULEå®ï¼Œhelloworld.c å’Œå†…æ ¸ä¸€èµ·ç¼–è¯‘ã€‚
+2ã€é™æ€ç¼–è¯‘ï¼šå®šä¹‰MODULEå®ï¼Œhelloworld.c ç‹¬ç«‹ç¼–è¯‘ã€‚é€šè¿‡ insmod æŒ‡ä»¤æ’å…¥å†…æ ¸ã€‚
 
 
-## 1.1.1Ä£¿é¾²Ì¬±àÒë
 
-×ÜµÄÁ÷³ÌÊÇ£º
-	±àÒë½×¶Î£¬Á´½ÓÎÄ¼þ¶¨Òå __initcall Çø£¬module_init ½«Ä£¿éµÄ xxx_module_init£¬·ÅÈë __initcall Çø¡£
-	ÔËÐÐ½×¶Î£¬start_kernelº¯Êý»áÖð¸öµ÷ÓÃ __initcall ÇøÀïµÄ xxx_module_init¡£
+## 1.1.1æ¨¡å—é™æ€ç¼–è¯‘
+
+æ€»çš„æµç¨‹æ˜¯ï¼š
+	ç¼–è¯‘é˜¶æ®µï¼Œé“¾æŽ¥æ–‡ä»¶å®šä¹‰ __initcall åŒºï¼Œmodule_init å°†æ¨¡å—çš„ xxx_module_initï¼Œæ”¾å…¥ __initcall åŒºã€‚
+	è¿è¡Œé˜¶æ®µï¼Œstart_kernelå‡½æ•°ä¼šé€ä¸ªè°ƒç”¨ __initcall åŒºé‡Œçš„ xxx_module_initã€‚
 
 
 ```
@@ -41,12 +44,12 @@ module_exit(hw_exit);
 		#define device_initcall(fn)     __define_initcall(fn, 6)
 			#define __define_initcall(fn, id) \
                 static initcall_t __initcall_##fn##id __used \
-                __attribute__((__section__(".initcall" #id ".init"))) = fn	<--module¾²Ì¬±àÒëÊ±£¬xxx_mod_initº¯Êý±»ÉèÖÃ½øinitCallÇø£¡£¡£¡£¡
+                __attribute__((__section__(".initcall" #id ".init"))) = fn	<--moduleé™æ€ç¼–è¯‘æ—¶ï¼Œxxx_mod_initå‡½æ•°è¢«è®¾ç½®è¿›initCallåŒºï¼ï¼ï¼ï¼
 */
 ```
 
 ```
-//sfw**module**ÄÚºË³õÊ¼»¯µ÷ÓÃÁ´
+//sfw**module**å†…æ ¸åˆå§‹åŒ–è°ƒç”¨é“¾
 start_kernel
 	rest_init
     	kernel_thread
@@ -55,24 +58,24 @@ start_kernel
                 	do_basic_setup				<------------
                     	do_initcalls
                         	do_initcall_level(level)
-                            	do_one_initcall(initcall_t fn)	<--module¾²Ì¬±àÒëÊ±£¬xxx_mod_initº¯Êý±»µ÷ÓÃ£¡£¡£¡£¡
+                            	do_one_initcall(initcall_t fn)	<--moduleé™æ€ç¼–è¯‘æ—¶ï¼Œxxx_mod_initå‡½æ•°è¢«è°ƒç”¨ï¼ï¼ï¼ï¼
 ```
 
 
 
-## 1.1.2Ä£¿é¶¯Ì¬±àÒë
+## 1.1.2æ¨¡å—åŠ¨æ€ç¼–è¯‘
 
-×ÜµÄÁ÷³ÌÊÇ£º
-	±àÒë½×¶Î£¬±àÒëÉú³É.koÎÄ¼þ¡£
-	ÔËÐÐ½×¶Î£¬Í¨¹ý insmod ÏµÍ³µ÷ÓÃ£¬ÔÚÄÚºË¿Õ¼äµ÷ÓÃxxx_mod_init()º¯Êý¡£
+æ€»çš„æµç¨‹æ˜¯ï¼š
+	ç¼–è¯‘é˜¶æ®µï¼Œç¼–è¯‘ç”Ÿæˆ.koæ–‡ä»¶ã€‚
+	è¿è¡Œé˜¶æ®µï¼Œé€šè¿‡ insmod ç³»ç»Ÿè°ƒç”¨ï¼Œåœ¨å†…æ ¸ç©ºé—´è°ƒç”¨xxx_mod_init()å‡½æ•°ã€‚
 
 ```
-//sfw**module**module_init¶¨Òå(Ä£¿é¶¯Ì¬±àÒë)
+//sfw**module**module_initå®šä¹‰(æ¨¡å—åŠ¨æ€ç¼–è¯‘)
 #define module_init(initfn)					\
-//sfw**__inittestº¯Êý²âÊÔinitfnµÄÀàÐÍÎªinitcall_t
+//sfw**__inittestå‡½æ•°æµ‹è¯•initfnçš„ç±»åž‹ä¸ºinitcall_t
 	static inline initcall_t __maybe_unused __inittest(void)		\
 	{ return initfn; }					\
-//sfw**initfnº¯Êý±»ÖØÃüÃûÎªinit_module
+//sfw**initfnå‡½æ•°è¢«é‡å‘½åä¸ºinit_module
 	int init_module(void) __attribute__((alias(#initfn)));	
 ```
 
