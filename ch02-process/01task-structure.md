@@ -1,4 +1,4 @@
-# 1.1进程描述符
+# 1.1进程结构体
 ```c
 struct task_struct {
 #ifdef CONFIG_THREAD_INFO_IN_TASK
@@ -47,4 +47,10 @@ struct task_struct {
 	*/
 	struct thread_struct		thread;	
   }
+  ```
+  
+  
+  linux\arch\x86\entry\entry_64.S
+  ```
+  #include <asm/thread_info.h>
   ```
