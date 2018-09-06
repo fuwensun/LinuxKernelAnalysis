@@ -7,7 +7,7 @@
 
 
 ```
-//linux\include\linux\export.h
+/* linux\include\linux\export.h */
 #define __VMLINUX_SYMBOL(x) _##x
 #define VMLINUX_SYMBOL(x) __VMLINUX_SYMBOL(x)				
 ````
@@ -16,7 +16,7 @@
 
 
 ```	
-linux\include\asm-generic\vmlinux.lds.h
+/* linux\include\asm-generic\vmlinux.lds.h */
 #define INIT_CALLS_LEVEL(level)						\
 		VMLINUX_SYMBOL(__initcall##level##_start) = .;		\
 		KEEP(*(.initcall##level##.init))			\
@@ -30,7 +30,7 @@ linux\include\asm-generic\vmlinux.lds.h
 ```
 
 ```
-linux\include\asm-generic\vmlinux.lds.h
+/* linux\include\asm-generic\vmlinux.lds.h */
 #define INIT_CALLS							\
 		VMLINUX_SYMBOL(__initcall_start) = .;			\
 		KEEP(*(.initcallearly.init))				\
@@ -47,7 +47,7 @@ linux\include\asm-generic\vmlinux.lds.h
 
 
 ```		
-linux\include\asm-generic\vmlinux.lds.h
+/* linux\include\asm-generic\vmlinux.lds.h */
 #define INIT_DATA_SECTION(initsetup_align)				\		
 	.init.data : AT(ADDR(.init.data) - LOAD_OFFSET) {		\
 		INIT_CALLS						\			
@@ -58,13 +58,13 @@ linux\include\asm-generic\vmlinux.lds.h
 
 
 ```
-linux\arch\x86\kernel\vmlinux.lds.S
+/* linux\arch\x86\kernel\vmlinux.lds.S */
 	INIT_DATA_SECTION(16)
 ```
 
 
 ```
-linux\include\linux\module.h
+/* linux\include\linux\module.h */
 #define module_init(x)  __initcall(x);
 	#define __initcall(fn) device_initcall(fn)
 		#define device_initcall(fn)     __define_initcall(fn, 6)
@@ -78,7 +78,7 @@ linux\include\linux\module.h
 
 
 ```
-linux\init\main.c
+/* linux\init\main.c */
 //sfw**module**内核初始化调用链
 start_kernel
 	rest_init
