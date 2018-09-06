@@ -12,6 +12,7 @@ linux\include\linux\export.h
 ````
 所以 __VMLINUX_SYMBOL(x) 等于 x，进而 VMLINUX_SYMBOL(x) 等于 x。
 
+
 linux\include\asm-generic\vmlinux.lds.h
 ```	
 #define INIT_CALLS_LEVEL(level)						\
@@ -60,6 +61,7 @@ linux\include\asm-generic\vmlinux.lds.h
 		__initcall_end = .;
 ```
 
+
 ```		
 #define INIT_DATA_SECTION(initsetup_align)				\		
 	.init.data : AT(ADDR(.init.data) - LOAD_OFFSET) {		\
@@ -72,6 +74,7 @@ linux\include\asm-generic\vmlinux.lds.h
 	}
 
 ```
+
 
 linux\arch\x86\kernel\vmlinux.lds.S
 ```
@@ -91,6 +94,7 @@ linux\include\linux\module.h
 				<--module静态编译时，xxx_mod_init函数被设置进initCall区！！！！
 */
 ```
+
 
 linux\init\main.c
 ```
