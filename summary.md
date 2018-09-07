@@ -1,5 +1,5 @@
 # 目录
-* [第 1 章 模块](ch01-/readme.md)
+* [第 1 章 模块](ch01-module/readme.md)
     * [1.1 HelloWorld 模块](ch01-module/01helloworld-module.md)
     * [1.2 静态编译模块](ch01-module/02compile-statically.md)
     * [1.3 动态编译模块](ch01-module/03compile-dynamically.md)
@@ -8,7 +8,7 @@
     * [3.2 进程内核栈](ch02-process/02process-kernel-state-stack.md)
     * [3.3 进程虚拟地址空间](ch02-process/03virtual-address-space.md)
     * [4.4 进程调度](ch02-process/03virtual-address-space.md)
-* [第 3 章 内存](ch-/readme.md)
+* [第 3 章 内存](ch-memory/readme.md)
     * [3.1 内存管理](ch03-memory/01task-structure.md)
     * [3.2 动态内存分配](ch03-memory/01task-structure.md)
     * [3.3 页面缓存](ch03-memory/01task-structure.md)
