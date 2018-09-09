@@ -86,7 +86,7 @@ INIT_DATA_SECTION(16)
 ## 1.2.2 module_init() 修饰模块初始化函数属性为 .initcall6.init 。
 
 有下面代码可知__define_initcall(xxx, 6) 会被展开成：
-static initcall_t __initcall_xxx6 __used __attribute__((__section__(.initcall6.init))) = xxx
+-static initcall_t __initcall_xxx6 __used __attribute__((__section__(.initcall6.init))) = xxx
 
 ```
 /* linux\include\linux\module.h */
@@ -95,7 +95,8 @@ static initcall_t __initcall_xxx6 __used __attribute__((__section__(.initcall6.i
 		__attribute__((__section__(".initcall" #id ".init"))) = fn	
 ```
 由下面的代码可知module_init(xxx)最终调用了__define_initcall(xxx, 6)
-因此，它也定义了static initcall_t __initcall_xxx6 __used __attribute__((__section__(.initcall6.init))) = xxx。
+因此，它也定义了:
+-static initcall_t __initcall_xxx6 __used __attribute__((__section__(.initcall6.init))) = xxx。
 ```
 /* linux\include\linux\module.h */
 #define module_init(x)  __initcall(x);
