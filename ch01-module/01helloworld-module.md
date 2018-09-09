@@ -2,8 +2,7 @@
 ## 1.1.1 HELLO WORLD
 
 HELLO WORLD！！！  
-伟大的HELLO WORLD！！！  
-每次打印HELLO WORLD都说明我又在学新的编程语言了！！！  
+伟大的HELLO WORLD！！！    
 helloworld.c
 ```
 #incldue <linux/kernel.h>
@@ -38,11 +37,7 @@ rmmod helloworld.ko | dmesg -c
 
 ## 1.1.2 ubuntu 下内核开发环境的建立
 
-sudo apt-get update
-sudo apt-get install linux-source --fix-missing				/* /usr/src */
-cd /usr/src
-sudo make oldconfig
-suod make -j2
+
 
 
 

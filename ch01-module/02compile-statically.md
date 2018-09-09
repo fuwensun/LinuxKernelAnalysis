@@ -85,9 +85,8 @@ INIT_DATA_SECTION(16)
 
 ## 1.2.2 module_init() 修饰模块初始化函数属性为 .initcall6s.init 。
 
-有下面代码可知__define_initcall(x, 6) 会被展开成：
-static initcall_t __initcall_x6 __used __attribute__((__section__(.initcall6.init))) = x
-__attribute__((__section__(".initcall" #id ".init"))) = fn
+有下面代码可知__define_initcall(xxx, 6) 会被展开成：
+static initcall_t __initcall_xxx6 __used __attribute__((__section__(.initcall6.init))) = xxx
 
 ```
 /* linux\include\linux\module.h */
@@ -95,8 +94,8 @@ __attribute__((__section__(".initcall" #id ".init"))) = fn
 		static initcall_t __initcall_##fn##id __used \
 		__attribute__((__section__(".initcall" #id ".init"))) = fn	
 ```
-由下面的代码可知module_init(x)最终调用了__define_initcall(x, 6)
-因此，它也定义了static initcall_t __initcall_x6 __used __attribute__((__section__(.initcall6.init))) = x。
+由下面的代码可知module_init(xxx)最终调用了__define_initcall(xxx, 6)
+因此，它也定义了static initcall_t __initcall_xxx6 __used __attribute__((__section__(.initcall6.init))) = xxx。
 ```
 /* linux\include\linux\module.h */
 #define module_init(x)  __initcall(x);
@@ -107,7 +106,7 @@ __attribute__((__section__(".initcall" #id ".init"))) = fn
 
 ## 1.2.3 内核初始化时调用模块初始化函数
 
-内核初始化时调用 initcall_t 类型的 __initcall_x6 函数，也就是模块初始化函数。调用链如下：
+内核初始化时调用 initcall_t 类型的 __initcall_xxx6 函数，也就是模块初始化函数。调用链如下：
 ```
 /* linux\init\main.c */
 start_kernel
