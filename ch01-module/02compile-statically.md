@@ -1,8 +1,8 @@
 # 1.2模块静态编译
 
 总的流程是：  
--    编译阶段，链接脚本定义 .initcall6.init 段，module_init 标记 xxx_module_init 属性为.initcall6.init，链接时放入 .initcall6.init 段。  
--    运行阶段，start_kernel函数会逐个调用 .initcall6.init 段里的 xxx_module_init。  
+-    编译阶段，链接脚本定义 .initcall6.init 段，module_init 标记模块初始化函数 xxx_init 的属性为.initcall6.init，链接时放入 .initcall6.init 段。  
+-    运行阶段，start_kernel函数会逐个调用 .initcall6.init 段里的 xxx_init。  
 
 
 ## 1.2.1 链接脚本定义 .initcall6.init 段
@@ -83,7 +83,7 @@ INIT_DATA_SECTION(16)
 ```
 这定义了.init.data段，链接时带 .initcall6.init 或 .initcall6s.init 属性的内容都放在这里。
 
-## 1.2.2 module_init() 修饰模块初始化函数属性为 .initcall6s.init 。
+## 1.2.2 module_init() 修饰模块初始化函数属性为 .initcall6.init 。
 
 有下面代码可知__define_initcall(xxx, 6) 会被展开成：
 static initcall_t __initcall_xxx6 __used __attribute__((__section__(.initcall6.init))) = xxx
@@ -109,13 +109,13 @@ static initcall_t __initcall_xxx6 __used __attribute__((__section__(.initcall6.i
 内核初始化时调用 initcall_t 类型的 __initcall_xxx6 函数，也就是模块初始化函数。调用链如下：
 ```
 /* linux\init\main.c */
-start_kernel
-	rest_init
-    	kernel_thread
-        	kernel_init
-            	kernel_init_freeable
-                	do_basic_setup
-                    	do_initcalls
-                        	do_initcall_level(level)
-                            	do_one_initcall(initcall_t fn)
+	start_kernel
+		rest_init
+			kernel_thread
+				kernel_init
+					kernel_init_freeable
+						do_basic_setup
+							do_initcalls
+								do_initcall_level(level)
+									do_one_initcall(initcall_t fn)
 ```
