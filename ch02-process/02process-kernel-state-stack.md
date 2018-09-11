@@ -2,12 +2,12 @@
 
 ## 1.2.1进程内核态栈的初始化
 
-首先来看下内核链接文件定义的两个静态数据 init_thread_union、init_stack 和 init_task：
+首先来看下内核定义的三个静态数据 init_thread_union、init_stack 和 init_task：
 
 ------------------------------------------------------------------------------------
 定义：init_thread_union、init_stack:
 ```c
-/* linux\include\asm-generic\vmlinux.lds.h 	*/
+/* linux\include\asm-generic\vmlinux.lds.h */
 #define INIT_TASK_DATA(align)						\
 	. = ALIGN(align);						\
 	VMLINUX_SYMBOL(__start_init_task) = .;				\			
@@ -25,7 +25,7 @@
 
 声明：init_thread_union、init_stack
 ```c
-union thread_union {									
+union thread_union {
 #ifndef CONFIG_ARCH_TASK_STRUCT_ON_STACK
 	struct task_struct task;					//<-----
 #endif
@@ -40,21 +40,73 @@ extern union thread_union init_thread_union;				//<=====
 extern unsigned long init_stack[THREAD_SIZE / sizeof(unsigned long)];	//<=====
 ```
 定义：init_task
-```
+```c
 /* linux\init\init_task.c  */
-struct task_struct init_task	//sfw**init_task** 描述符
+struct task_struct init_task
 #ifdef CONFIG_ARCH_TASK_STRUCT_ON_STACK
 	__init_task_data
 #endif
 = {
 #ifdef CONFIG_THREAD_INFO_IN_TASK
-	.thread_info	= INIT_THREAD_INFO(init_task),			//sfw**thread
+	.thread_info	= INIT_THREAD_INFO(init_task),	
 	.stack_refcount	= ATOMIC_INIT(1),
 #endif
-	.stack		= init_stack,				//sfw**
-}
+	.stack		= init_stack,
+};
+```
+--------------------------------------
+当定义CONFIG_ARCH_TASK_STRUCT_ON_STACK，也就是 thread_info 在 init_stack 里：
+```c
+union thread_union {
+	struct thread_info thread_info;
+	unsigned long stack[THREAD_SIZE/sizeof(long)];
+};
+union thread_union init_thread_union;
+unsigned long init_stack[THREAD_SIZE / sizeof(unsigned long)];
+
+struct task_struct init_task __init_task_data = {
+	.stack		= init_stack,
+};
 ```
 
+--------------------------------------
+当定义CONFIG_THREAD_INFO_IN_TASK，也就是 thread_info 在 init_task 里：
+```c
+union thread_union {
+	struct task_struct task;
+	unsigned long stack[THREAD_SIZE/sizeof(long)]; 
+};
+
+extern union thread_union init_thread_union;
+extern unsigned long init_stack[THREAD_SIZE / sizeof(unsigned long)];
+
+struct task_struct init_task {
+	.thread_info	= INIT_THREAD_INFO(init_task),
+	.stack_refcount	= ATOMIC_INIT(1),
+	.stack		= init_stack,
+};
+```
+
+```
+			                                +----------------+
+			                                |		 |
+			                                |		 |
+			                                |		 |
+			                                |		 |
+			                                |		 |
+			                                |		 |
+       ---		+---------------+               |		 |
+	|		|		|               |		 |
+	|		|		|               |		 |
+      stack 		|		|               |		 |
+       	|      ---	|		|               |		 |
+	|	|	|		|               |		 |
+	|  thread_info	|		|               |		 |
+	|	|	|		|               |		 |
+       ---     ---	+---------------+               +----------------+
+			thread_union			 task_struct
+```
+--------------------------------------
 
 现在内核初始化相关的流程如下 
 -   startup 函数初始化 sp 为init_stack，通常叫它0号进程或者 init_task。
