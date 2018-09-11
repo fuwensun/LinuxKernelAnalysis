@@ -11,9 +11,9 @@
 	. = ALIGN(align);						\
 	VMLINUX_SYMBOL(__start_init_task) = .;				\			
 	VMLINUX_SYMBOL(init_thread_union) = .;				\	//		<=====
-	VMLINUX_SYMBOL(init_stack) = .;					\		//		<=====
-	*(.data..init_task)						\				//		<-----
-	*(.data..init_thread_info)					\			//		<-----
+	VMLINUX_SYMBOL(init_stack) = .;					\	//		<=====
+	*(.data..init_task)						\	//		<-----
+	*(.data..init_thread_info)					\	//		<-----
 	. = VMLINUX_SYMBOL(__start_init_task) + THREAD_SIZE;		\
 	VMLINUX_SYMBOL(__end_init_task) = .;
 ```
@@ -26,10 +26,10 @@
 ```
 union thread_union {									
 #ifndef CONFIG_ARCH_TASK_STRUCT_ON_STACK
-	struct task_struct task;									//		<-----
+	struct task_struct task;											//<-----
 #endif
 #ifndef CONFIG_THREAD_INFO_IN_TASK
-	struct thread_info thread_info;								//		<-----
+	struct thread_info thread_info;										//<-----
 #endif
 	unsigned long stack[THREAD_SIZE/sizeof(long)]; 
 };
@@ -84,7 +84,6 @@ kernel_init 创建时从 init_task 的内核态栈 init_stack 复制了一份，
 
 ```
 
-```
 
 
 ## 1.2.2进程内核态栈的使用-系统调用
