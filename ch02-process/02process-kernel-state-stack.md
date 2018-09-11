@@ -3,7 +3,8 @@
 ## 1.2.1进程内核态栈的初始化
 
 首先来看下内核链接文件定义的两个静态数据 init_thread_union、init_stack 和 init_task：
-------------------------------------
+
+------------------------------------------------------------------------------------
 定义：init_thread_union、init_stack:
 ```c
 /* linux\include\asm-generic\vmlinux.lds.h 	*/
@@ -21,7 +22,7 @@
 /* linux\arch\x86\kernel\vmlinux.lds.S */
 	INIT_TASK_DATA(THREAD_SIZE)
 ```
------------------------------------
+
 声明：init_thread_union、init_stack
 ```c
 union thread_union {									
@@ -38,7 +39,6 @@ extern union thread_union init_thread_union;				//<=====
 
 extern unsigned long init_stack[THREAD_SIZE / sizeof(unsigned long)];	//<=====
 ```
----------------
 定义：init_task
 ```
 /* linux\init\init_task.c  */
