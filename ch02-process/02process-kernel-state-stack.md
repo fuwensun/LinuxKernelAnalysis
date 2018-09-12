@@ -1,12 +1,10 @@
 # 1.2进程内核态栈
 
 ## 1.2.1进程内核态栈的来源--内核初始化栈
--   内核代码静态定义内核初始化栈 init_stack 和 内核线程 init_task
--   内核初始化，将 init_task 转化为 idle_task 内核线程，然后第一此动态创建内核线程（kernel_init），第一次动态创建进程内核态栈（kernel_init->stack）。
+-   内核代码静态定义内核初始化栈 init_stack 和 内核线程 init_task，并将 init_stack 指定为 init_task 的栈。
+-   内核初始化，将 init_task 转化为 idle 内核线程，然后第一此动态创建内核线程 kernel_init，即1号进程，第一次动态创建进程内核态栈 kernel_init->stack。之后同样的方式创建了 kthreadd，即2号进程，和它的内核态栈 kthreadd->stack。
 
-首先来看下内核定义的 init_stack ：
-
-------------------------------------------------------------------------------------
+--------------------------------------
 定义 init_stack ：
 ```c
 /* linux\include\asm-generic\vmlinux.lds.h */
@@ -37,13 +35,13 @@ struct task_struct init_task = {
 	.stack		= init_stack,
 };
 ```
+由上面的代码可知 init_stack 指定为 init_task 的栈
 
 --------------------------------------
-
-现在内核初始化相关的流程如下 
--  startup 函数初始化 sp 为 init_stack（具体值后面会说），通常叫它0号进程或者 init_task。
--  接着 start_kernel 调用 sched_init，sched_init 完成调度器的初始化，并把init_task加入调度队列，此后init_task又叫idle_task。
--  最后 start_kernel 调用 rest_init，reset_init 创建kernel_init即1号进程，然后启动调度器，进程正式运行起来。
+现在来看内核初始化，相关的流程如下：
+-  startup 函数初始化 sp 为 init_stack（不够准确，具体值看后面），通常叫它0号进程或者 init_task。
+-  接着 start_kernel 调用 sched_init，sched_init 完成调度器的初始化，并把 init_task 加入调度队列，此后 init_task 转化成 idle 进程。
+-  最后 start_kernel 调用 rest_init，reset_init 创建 kernel_init 和 kthreadd，然后启动调度器，进程正式运行起来。
 
 
 ```c
@@ -53,6 +51,7 @@ startup_64
 			init_idle
 		rest_init
 			kernel_thread(kernel_init...)
+			kernel_thread(kthreadd...)
 
 ```
 ```c
@@ -75,9 +74,10 @@ startup_64:
 
 #define SIZEOF_PTREGS	21*8				// <---重点
 ```
-看了上面的代码，可知这是对线程切换时硬件上下文入栈的模拟。为什只是模拟而不是真实的？这个函数不返回了，如果要返回这里也要 push 硬件上下文。另外如果这里不模拟进程切入，那么切出时也要特殊的操作了，这样这个进程变为 idle_task 后对它的调度时的切入切出操作也和其它进程不一样。
+由上面的代码，可知这是对线程切换时硬件上下文入栈的模拟。为什只是模拟而不是真实的？这个函数不返回了，如果要返回这里也要 push 硬件上下文。另外如果这里不模拟进程切入，那么切出时也要特殊的操作了，这样这个进程变为 idle 进程后对它的调度时的切入切出操作也和其它进程不一样。
 
-kernel_init 创建时从 init_task 的内核态栈 init_stack 复制了一份，并把它的地址存在 kernel_init->stack 。之后所有的进程都是 kernel_init 的子孙进程，它们的栈都是从init_stack复制子而来。
+总结：
+到这里我知道了内核创建了3个进程：0号idle、1号kernel_init、2号kthreadd。而且 idle 的内核态栈为 init_task，那么kernel_init 和 kthreadd 的内核态栈是什么？这里直接给出答案，是 init_task 的拷贝，具体后面分析。
 
 
 ## 1.2.2进程内核态栈的使用-系统调用
