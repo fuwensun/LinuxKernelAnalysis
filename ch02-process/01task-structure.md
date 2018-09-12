@@ -51,6 +51,78 @@ struct task_struct {
   
   
   linux\arch\x86\entry\entry_64.S
-  ```
+
   #include <asm/thread_info.h>
+
+首先来看下内核定义的三个静态数据 init_thread_union、init_stack 和 init_task：
+
+声明：init_thread_union、init_stack
+```c
+union thread_union {
+#ifndef CONFIG_ARCH_TASK_STRUCT_ON_STACK
+	struct task_struct task;					//<-----
+#endif
+#ifndef CONFIG_THREAD_INFO_IN_TASK
+	struct thread_info thread_info;					//<-----
+#endif
+	unsigned long stack[THREAD_SIZE/sizeof(long)]; 
+};
+
+extern union thread_union init_thread_union;				//<=====
+
+extern unsigned long init_stack[THREAD_SIZE / sizeof(unsigned long)];	//<=====
+```
+
+--------------------------------------
+当定义CONFIG_ARCH_TASK_STRUCT_ON_STACK，也就是 thread_info 在 init_stack 里：
+```c
+union thread_union {
+	struct thread_info thread_info;
+	unsigned long stack[THREAD_SIZE/sizeof(long)];
+};
+union thread_union init_thread_union;
+unsigned long init_stack[THREAD_SIZE / sizeof(unsigned long)];
+
+struct task_struct init_task __init_task_data = {
+	.stack		= init_stack,
+};
+```
+
+--------------------------------------
+当定义CONFIG_THREAD_INFO_IN_TASK，也就是 thread_info 在 init_task 里：
+```c
+union thread_union {
+	struct task_struct task;
+	unsigned long stack[THREAD_SIZE/sizeof(long)]; 
+};
+
+extern union thread_union init_thread_union;
+extern unsigned long init_stack[THREAD_SIZE / sizeof(unsigned long)];
+
+struct task_struct init_task {
+	.thread_info	= INIT_THREAD_INFO(init_task),
+	.stack_refcount	= ATOMIC_INIT(1),
+	.stack		= init_stack,
+};
+```
+
+```
+			                                +----------------+
+			                                |		 |
+			                                |		 |
+			                                |		 |
+			                                |		 |
+			                                |		 |
+			                                |		 |
+       ---		+---------------+               |		 |
+	|		|		|               |		 |
+	|		|		|               |		 |
+      stack 		|		|               |		 |
+       	|      ---	|		|               |		 |
+	|	|	|		|               |		 |
+	|  thread_info	|		|               |		 |
+	|	|	|		|               |		 |
+       ---     ---	+---------------+               +----------------+
+			thread_union			 task_struct
+```
   ```
