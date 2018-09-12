@@ -62,14 +62,14 @@ struct task_struct 描述了一个进程的状态和拥有的资源，是一个�
 ```c
 union thread_union {
 #ifndef CONFIG_ARCH_TASK_STRUCT_ON_STACK
-	struct task_struct task;					//<-----
+	struct task_struct task;
 #endif
 #ifndef CONFIG_THREAD_INFO_IN_TASK
-	struct thread_info thread_info;					//<-----
+	struct thread_info thread_info;
 #endif
 	unsigned long stack[THREAD_SIZE/sizeof(long)]; 
 };
-extern unsigned long init_stack[THREAD_SIZE / sizeof(unsigned long)];	//<=====
+extern unsigned long init_stack[THREAD_SIZE / sizeof(unsigned long)];
 ```
 
 --------------------------------------

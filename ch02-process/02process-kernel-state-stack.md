@@ -47,8 +47,11 @@ struct task_struct init_task = {
 ```c
 startup_64
 	start_kernel
-		sched_init();
-			init_idle(current, smp_processor_id());
+		sched_init
+			init_idle
+		rest_init
+			kernel_thread(kernel_init...)
+
 ```
 ```c
 /* linux\arch\x86\kernel\head_64.S */
@@ -59,32 +62,12 @@ startup_64:
 这里为什么载入 sp 的是 __end_init_task - SIZEOF_PTREGS ?
 ```c
 /* linux\arch\x86\entry\calling.h */
-/* The layout forms the "struct pt_regs" on the stack: */
 #define R15		0*8
 #define R14		1*8
 #define R13		2*8
-#define R12		3*8
-#define RBP		4*8
-#define RBX		5*8
-/* These regs are callee-clobbered. Always saved on kernel entry. */
-#define R11		6*8
-#define R10		7*8
-#define R9		8*8
-#define R8		9*8
-#define RAX		10*8
-#define RCX		11*8
-#define RDX		12*8
-#define RSI		13*8
-#define RDI		14*8
-/*
- * On syscall entry, this is syscall#. On CPU exception, this is error code.
- * On hw interrupt, it's IRQ number:
- */
-#define ORIG_RAX	15*8
-/* Return frame for iretq */
-#define RIP		16*8
-#define CS		17*8
-#define EFLAGS		18*8
+		.
+		.
+		.
 #define RSP		19*8
 #define SS		20*8
 
@@ -149,6 +132,73 @@ __switch_to(struct task_struct *prev_p, struct task_struct *next_p)
 -   进程要么处于用户态，要么处于内核态。因为系统调用发生前，pc 和 sp 指向用户空间。发生系统调用时，用户空间的 pc 和 sp 被保存起来，内核空间对应的值被载入 pc 和 sp，此时用户空间上下文切换成内核空间上下文，系统调用结束时则相反。
 
 
-## 1.2.3进程内核态栈的使用-内核进程
+## 1.2.3进程内核态栈的使用-内核线程
 //todo
 
+内核线程：所有的内核线程都共享同一套代码段--内核代码，共享同一个虚拟地址空间--内核空间，但是各自有独立的栈。
+
+内核线程的创建者 kthreadd_task 内核线程,即2号进程
+
+```c
+startup_64
+	start_kernel
+		rest_init
+			kernel_thread(kthreadd...)
+
+```
+
+内核定义了内核线程的生产者 kthreadd_task 内核线程（消息的消费者）和消息中间件 kthread_create_list 链表：
+
+```c
+static LIST_HEAD(kthread_create_list);
+struct task_struct *kthreadd_task;
+```
+```c
+int kthreadd(void *unused)
+{
+
+	for (;;) {
+		while (!list_empty(&kthread_create_list)) {
+			struct kthread_create_info *create;
+
+			create_kthread(create);
+		}
+	}
+
+}
+```
+现在来看下消息的生产者内核例程 __kthread_create_on_node，它生成 create 消息，放入 kthread_create_list 消息中间件，唤醒消息消费者 kthreadd_task 。
+
+```c
+__kthread_create_on_node
+
+	struct kthread_create_info *create = kmalloc(sizeof(*create),GFP_KERNEL);
+
+	list_add_tail(&create->list, &kthread_create_list);
+
+	wake_up_process(kthreadd_task);
+
+```
+更常用的是对 __kthread_create_on_node 的封装：
+```c
+#define kthread_create(threadfn, data, namefmt, arg...) \
+	kthread_create_on_node(threadfn, data, NUMA_NO_NODE, namefmt, ##arg)
+
+struct task_struct *kthread_create_on_node(int (*threadfn)(void *data),
+					   const char namefmt[],
+					   ...){
+	task = __kthread_create_on_node(threadfn, data, node, namefmt, args);
+}
+```
+
+线面展示了内核线程的栈的创建流程：
+```c
+kthreadd //kthreadd_task
+	create_kthread
+		kernel_thread
+			_do_fork
+				copy_process
+					dup_task_struct(current, node);
+						stack = alloc_thread_stack_node(tsk, node);
+						tsk->stack = stack;
+```
