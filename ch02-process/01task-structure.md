@@ -39,24 +39,26 @@ struct task_struct {
 	struct pid_link			pids[PIDTYPE_MAX];
 	struct list_head		thread_group;
 	struct list_head		thread_node;
-  
-  	/* CPU-specific state of this task: */
-	/* 和CPU相关的线程状态，这个字段和 thread_info 作用相近。
-	*在有些ARCH中为空的struct，内容都迁入 thread_info。
-	*另外一些ARCH中 thread_info 大小有限制，就依赖 thread （如x86）。
-	*/
+
 	struct thread_struct		thread;	
   }
   ```
-  
-  
-  linux\arch\x86\entry\entry_64.S
+   
+struct task_struct 描述了一个进程的状态和拥有的资源，是一个进程实例的抽象。
+-    thread_info：进程信息标志(thread information flags)标记进程的各种状态：有无信号挂起、系统调用跟踪、兼容32位等（见附录A2），entry_64.S 中要快速访问。
+-    thread：特定体系结构的线程状态，如寄存器，特有的数据等。这个字段和 thread_info 作用相近，在有些ARCH中为空的struct，内容都迁入 thread_info，另外一些ARCH中 thread_info 大小有限制，就依赖 thread （如x86）。
+-    state：进程的状态：运行，不可运行，停止。
+-    stack：进程内核态栈。
+-    
+-    
+-    
+-    
+-    
+## 
 
-  #include <asm/thread_info.h>
-
-首先来看下内核定义的三个静态数据 init_thread_union、init_stack 和 init_task：
-
-声明：init_thread_union、init_stack
+首先来看下内核定义的三个数据结构：
+由于所有的内核态栈都是从父进程复制来的（后面章节会讲解），而 init_task 是所有进程的祖先进程，它的栈 init_stack 是所有进程内态核栈的父本，这里用它来指代进程的 stack 字段。
+声明：thread_union、stack
 ```c
 union thread_union {
 #ifndef CONFIG_ARCH_TASK_STRUCT_ON_STACK
@@ -67,42 +69,38 @@ union thread_union {
 #endif
 	unsigned long stack[THREAD_SIZE/sizeof(long)]; 
 };
-
-extern union thread_union init_thread_union;				//<=====
-
 extern unsigned long init_stack[THREAD_SIZE / sizeof(unsigned long)];	//<=====
 ```
 
 --------------------------------------
-当定义CONFIG_ARCH_TASK_STRUCT_ON_STACK，也就是 thread_info 在 init_stack 里：
+当定义CONFIG_ARCH_TASK_STRUCT_ON_STACK，也就是 thread_info 在 stack 里：
 ```c
 union thread_union {
 	struct thread_info thread_info;
 	unsigned long stack[THREAD_SIZE/sizeof(long)];
 };
-union thread_union init_thread_union;
+
 unsigned long init_stack[THREAD_SIZE / sizeof(unsigned long)];
 
-struct task_struct init_task __init_task_data = {
-	.stack		= init_stack,
+struct task_struct = {
+        volatile long			state;
 };
 ```
 
 --------------------------------------
-当定义CONFIG_THREAD_INFO_IN_TASK，也就是 thread_info 在 init_task 里：
+当定义CONFIG_THREAD_INFO_IN_TASK，也就是 thread_info 在 task 里：
 ```c
 union thread_union {
 	struct task_struct task;
 	unsigned long stack[THREAD_SIZE/sizeof(long)]; 
 };
 
-extern union thread_union init_thread_union;
 extern unsigned long init_stack[THREAD_SIZE / sizeof(unsigned long)];
 
-struct task_struct init_task {
-	.thread_info	= INIT_THREAD_INFO(init_task),
-	.stack_refcount	= ATOMIC_INIT(1),
-	.stack		= init_stack,
+struct task_struct {
+	struct thread_info		thread_info;
+	volatile long			state;
+  	void				*stack;
 };
 ```
 
