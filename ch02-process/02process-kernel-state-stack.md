@@ -1,6 +1,8 @@
 # 1.2进程内核态栈
 
-## 1.2.1进程内核态栈的初始化
+## 1.2.1进程内核态栈的来源--内核初始化栈
+-   内核代码静态定义内核初始化栈 init_stack 和 内核线程 init_task
+-   内核初始化，将 init_task 转化为 idle_task 内核线程，然后第一此动态创建内核线程（kernel_init），第一次动态创建进程内核态栈（kernel_init->stack）。
 
 首先来看下内核定义的 init_stack ：
 
@@ -40,7 +42,7 @@ struct task_struct init_task = {
 
 现在内核初始化相关的流程如下 
 -  startup 函数初始化 sp 为 init_stack（具体值后面会说），通常叫它0号进程或者 init_task。
--  接着 start_kernel 调用 sched_init，sched_init 完成调度器的初始化，并把init_task加入调度队列，此后init_task又叫idle_task
+-  接着 start_kernel 调用 sched_init，sched_init 完成调度器的初始化，并把init_task加入调度队列，此后init_task又叫idle_task。
 -  最后 start_kernel 调用 rest_init，reset_init 创建kernel_init即1号进程，然后启动调度器，进程正式运行起来。
 
 
@@ -75,11 +77,12 @@ startup_64:
 ```
 看了上面的代码，可知这是对线程切换时硬件上下文入栈的模拟。为什只是模拟而不是真实的？这个函数不返回了，如果要返回这里也要 push 硬件上下文。另外如果这里不模拟进程切入，那么切出时也要特殊的操作了，这样这个进程变为 idle_task 后对它的调度时的切入切出操作也和其它进程不一样。
 
-kernel_init 创建时从 init_task 的内核态栈 init_stack 复制了一份，并把它的地址存在struct task 的 stack 字段 。之后所有的进程都是 kernel_init 的子孙进程，它们的栈都是从init_stack复制子而来。
+kernel_init 创建时从 init_task 的内核态栈 init_stack 复制了一份，并把它的地址存在 kernel_init->stack 。之后所有的进程都是 kernel_init 的子孙进程，它们的栈都是从init_stack复制子而来。
 
 
 ## 1.2.2进程内核态栈的使用-系统调用
-
+-    系统调用机制的初始化
+-    发起系统调用流程
 
 内核初始到系统调用初始化：
 ```c
@@ -137,6 +140,10 @@ __switch_to(struct task_struct *prev_p, struct task_struct *next_p)
 
 内核线程：所有的内核线程都共享同一套代码段--内核代码，共享同一个虚拟地址空间--内核空间，但是各自有独立的栈。
 
+-    内核线程的创建
+-    内核线程栈的创建
+-    调度器调度内核线程时为它指定的栈
+
 内核线程的创建者 kthreadd_task 内核线程,即2号进程
 
 ```c
@@ -179,19 +186,10 @@ __kthread_create_on_node
 	wake_up_process(kthreadd_task);
 
 ```
-更常用的是对 __kthread_create_on_node 的封装：
-```c
-#define kthread_create(threadfn, data, namefmt, arg...) \
-	kthread_create_on_node(threadfn, data, NUMA_NO_NODE, namefmt, ##arg)
+更常用的是对 __kthread_create_on_node 的封装（附录A4）
 
-struct task_struct *kthread_create_on_node(int (*threadfn)(void *data),
-					   const char namefmt[],
-					   ...){
-	task = __kthread_create_on_node(threadfn, data, node, namefmt, args);
-}
-```
 
-线面展示了内核线程的栈的创建流程：
+下面展示了内核线程的栈的创建流程：
 ```c
 kthreadd //kthreadd_task
 	create_kthread
