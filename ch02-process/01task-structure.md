@@ -4,7 +4,7 @@ struct task_struct {
 #ifdef CONFIG_THREAD_INFO_IN_TASK
 	struct thread_info		thread_info;
 #endif
-	volatile long		state;
+	volatile long		        state;
   	void				*stack;
   
   	int				prio;
@@ -117,5 +117,7 @@ struct task_struct {
        ---     ---	+----------------+              +----------------+
 			thread_union			 task_struct
 ```
-  ```
+
+```
 //todo
+```
