@@ -2,11 +2,9 @@
 ```c
 struct task_struct {
 #ifdef CONFIG_THREAD_INFO_IN_TASK
-	/* 线程的状态、标志等需要在汇编代码快速访问的 */
 	struct thread_info		thread_info;
 #endif
-	/* -1 unrunnable, 0 runnable, >0 stopped: */
-	volatile long			state;
+	volatile long		state;
   	void				*stack;
   
   	int				prio;
@@ -22,20 +20,14 @@ struct task_struct {
   	pid_t				pid;
 	pid_t				tgid;
   
-  	/* Real parent process: */
 	struct task_struct __rcu	*real_parent;
 
-	/* Recipient of SIGCHLD, wait4() reports: */
 	struct task_struct __rcu	*parent;
 
-	/*
-	 * Children/sibling form the list of natural children:
-	 */
 	struct list_head		children;
 	struct list_head		sibling;
 	struct task_struct		*group_leader;
   
-  	/* PID/PID hash table linkage. */
 	struct pid_link			pids[PIDTYPE_MAX];
 	struct list_head		thread_group;
 	struct list_head		thread_node;
@@ -45,6 +37,7 @@ struct task_struct {
   ```
    
 struct task_struct 描述了一个进程的状态和拥有的资源，是一个进程实例的抽象。
+
 -    thread_info：进程信息标志(thread information flags)标记进程的各种状态：有无信号挂起、系统调用跟踪、兼容32位等（见附录A2），entry_64.S 中要快速访问。
 -    thread：特定体系结构的线程状态，如寄存器，特有的数据等。这个字段和 thread_info 作用相近，在有些ARCH中为空的struct，内容都迁入 thread_info，另外一些ARCH中 thread_info 大小有限制，就依赖 thread （如x86）。
 -    state：进程的状态：运行，不可运行，停止。
@@ -106,22 +99,22 @@ struct task_struct {
 ```
 
 ```
-			                                +----------------+
-			                                |		 |
-			                                |		 |
-			                                |		 |
-			                                |		 |
-			                                |		 |
-			                                |		 |
-       ---		+---------------+               |		 |
-	|		|		|               |		 |
-	|		|		|               |		 |
-      stack 		|		|               |		 |
-       	|      ---	|		|               |		 |
-	|	|	|		|               |		 |
-	|  thread_info	|		|               |		 |
-	|	|	|		|               |		 |
-       ---     ---	+---------------+               +----------------+
+       ---              +----------------+              			                                
+	|               |		 |              			                               
+	|               |		 |              			                         
+        |               |		 |              			                         
+       	|               |		 |              			                         
+	|               |		 |              			                         
+	|               |		 |              			                         
+        stack		|                |		+----------------+
+	|		|		 |              |		 |
+	|		|		 |              |		 |
+        | 		|		 |              |		 |
+       	|      ---	+----------------+		|		 |
+	|	|	|		 |              |		 |
+	|  thread_info	|		 |              |		 |
+	|	|	|		 |              |		 |
+       ---     ---	+----------------+              +----------------+
 			thread_union			 task_struct
 ```
   ```
